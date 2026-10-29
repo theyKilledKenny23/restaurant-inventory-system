@@ -12,7 +12,6 @@ RUN npm ci --only=production
 
 # Копируем весь исходный код
 COPY src/ ./src/
-COPY .env ./
 
 # Открываем порт, на котором работает Node.js
 EXPOSE 3000
