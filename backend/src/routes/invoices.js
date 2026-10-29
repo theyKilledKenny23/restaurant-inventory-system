@@ -44,10 +44,8 @@ router.post('/', async (req, res) => {
                 [invoiceId, item.product_id, item.quantity, item.expiry_date || null]
             );
 
-            // 4. Обновляем остатки на складе (inventory)
+                        // 4. Обновляем остатки на складе (inventory)
             if (invoice_type === 'incoming') {
-                // ПРИХОД: увеличиваем количество. 
-                // ON DUPLICATE KEY UPDATE - если продукт уже есть, обновляем его, если нет - создаем.
                 await connection.execute(`
                     INSERT INTO inventory (restaurant_id, product_id, quantity, expiry_date)
                     VALUES (?, ?, ?, ?)
@@ -56,7 +54,21 @@ router.post('/', async (req, res) => {
                     expiry_date = VALUES(expiry_date)
                 `, [restaurant_id, item.product_id, item.quantity, item.expiry_date]);
             } else if (invoice_type === 'outgoing') {
-                // РАСХОД: уменьшаем количество
+                // ПРОВЕРКА: узнаем текущий остаток перед списанием
+                const [stockRows] = await connection.execute(
+                    'SELECT quantity FROM inventory WHERE restaurant_id = ? AND product_id = ?',
+                    [restaurant_id, item.product_id]
+                );
+
+                const currentQuantity = stockRows.length > 0 ? parseFloat(stockRows[0].quantity) : 0;
+
+                // Если пытаемся списать больше, чем есть, или продукта нет в базе
+                if (currentQuantity < item.quantity) {
+                    // Вызов ошибки автоматически запустит connection.rollback() в блоке catch!
+                    throw new Error(`Недостаточно товара на складе. Доступно: ${currentQuantity}, требуется: ${item.quantity}`);
+                }
+
+                // Если всё ок, списываем
                 await connection.execute(`
                     UPDATE inventory
                     SET quantity = quantity - ?

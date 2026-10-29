@@ -36,12 +36,12 @@ router.get('/:restaurant_id', async (req, res) => {
             return res.json(JSON.parse(cachedData));
         }
 
-        // 2. Запрос к БД с JOIN для получения названий продуктов
+        // 2. Запрос к БД с JOIN (добавлено условие quantity > 0)
         const [rows] = await db.execute(`
             SELECT i.id, p.name as product_name, p.unit, p.category, i.quantity, i.expiry_date
             FROM inventory i
             JOIN products p ON i.product_id = p.id
-            WHERE i.restaurant_id = ?
+            WHERE i.restaurant_id = ? AND i.quantity > 0
         `, [restaurant_id]);
 
         // 3. Сохраняем в кэш на 10 минут (600 секунд)
