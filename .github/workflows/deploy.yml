@@ -87,27 +87,41 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
+          # 1. Заменяем образы в docker-compose.yaml на образы из Docker Hub
           sed -i "s|localhost:5000/resto-database:latest|${DOCKER_USERNAME}/resto-database:latest|g" docker-compose.yaml
           sed -i "s|localhost:5000/resto-cache:latest|${DOCKER_USERNAME}/resto-cache:latest|g" docker-compose.yaml
           sed -i "s|localhost:5000/resto-backend:latest|${DOCKER_USERNAME}/resto-backend:latest|g" docker-compose.yaml
           sed -i "s|localhost:5000/resto-frontend:latest|${DOCKER_USERNAME}/resto-frontend:latest|g" docker-compose.yaml
           sed -i "s|localhost:5000/resto-proxy:latest|${DOCKER_USERNAME}/resto-proxy:latest|g" docker-compose.yaml
+          
+          # 2. Меняем сеть на bridge для локального тестирования в CI
           sed -i "s|driver: overlay|driver: bridge|g" docker-compose.yaml
+          
+          # 3. Запускаем контейнеры
           docker-compose up -d
-          sleep 15
+          
+          # 4. Ждём инициализации базы данных (увеличили до 30 секунд для стабильности в CI)
+          sleep 30
+          
+          # 5. Проверяем, что все сервисы запущены (используем docker-compose ps, он учитывает префиксы)
           for service in database cache backend frontend proxy; do
-            if [ -z "$(docker ps -q -f name=resto-${service})" ]; then
+            if [ -z "$(docker-compose ps -q $service)" ]; then
               echo "Error: ${service} container is not running"
               docker-compose logs ${service}
               docker-compose down --volumes
               exit 1
             fi
           done
+          
+          # 6. Проверяем доступность приложения через прокси
           curl -f http://localhost:80 || {
             echo "Error: Application is not accessible"
             docker-compose logs proxy
             docker-compose down --volumes
             exit 1
           }
-          echo "All tests passed successfully!"
+          
+          echo "✅ All tests passed successfully!"
+          
+          # 7. Останавливаем контейнеры после успешного тестирования
           docker-compose down --volumes
