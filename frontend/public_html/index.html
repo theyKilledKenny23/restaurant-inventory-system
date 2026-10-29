@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система управления запасами ресторанов</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Боковое меню -->
+        <aside class="sidebar">
+            <div class="logo">🍽️ RestoStock</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-page="dashboard">📊 Дашборд</a></li>
+                    <li><a href="#" class="nav-link" data-page="inventory"> Остатки на складе</a></li>
+                    <li><a href="#" class="nav-link" data-page="invoices">📝 Накладные</a></li>
+                    <li><a href="#" class="nav-link" data-page="reports">📈 Отчёты</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="content">
+            <header>
+                <h1 id="page-title">Дашборд</h1>
+            </header>
+            
+            <div id="app-content">
+                <!-- Сюда JavaScript будет подгружать контент -->
+                <div class="loading">Загрузка данных...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
