@@ -163,7 +163,7 @@ async function loadInvoices() {
                 <td>${inv.id}</td>
                 <td>${inv.restaurant_name}</td>
                 <td>${typeText}</td>
-                <td>${inv.invoice_date}</td>
+                <td>${new Date(inv.invoice_date).toLocaleDateString('ru-RU')}</td>
             </tr>`;
         });
         html += '</tbody></table>';

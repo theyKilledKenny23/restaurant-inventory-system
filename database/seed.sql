@@ -29,7 +29,7 @@ INSERT INTO products (name, unit, category) VALUES
 INSERT INTO inventory (restaurant_id, product_id, quantity, expiry_date) VALUES
 (1, 1, 50.00, '2026-11-15'), -- Картофель
 (1, 2, 20.00, '2026-11-05'), -- Говядина
-(1, 3, 30.00, '2026-11-02'), -- Молоко
+(1, 3, 30.00, '2026-11-07'), -- Молоко
 (1, 6, 15.00, '2026-11-10'), -- Куриное филе
 (1, 9, 100.00, '2026-11-20');-- Яйца
 
